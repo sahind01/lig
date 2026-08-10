@@ -1,5 +1,5 @@
 # .github/workflows/mutlu_tv_lig_veri_cekici.yml
-name: Mutlu TV Lig Veri Çekici - GERÇEK VERİ
+name: Mutlu TV Lig Veri Çekici - RAW HTML
 
 on:
   schedule:
@@ -37,7 +37,7 @@ jobs:
       run: |
         python mutlu_tv_lig_veri_cekici.py 2>&1 | tee output.log
       env:
-        USER_AGENT: "MutluTVLigBot/5.0 (+https://mutlutvlig.com)"
+        USER_AGENT: "MutluTVLigBot/7.0 (+https://mutlutvlig.com)"
         PYTHONUNBUFFERED: "1"
 
     - name: JSON Kontrol
@@ -76,4 +76,5 @@ jobs:
         path: |
           mutlu_tv_lig_verisi.json
           *.log
+          debug_*.html
         retention-days: 7
