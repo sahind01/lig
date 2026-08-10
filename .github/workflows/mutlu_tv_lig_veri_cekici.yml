@@ -1,9 +1,9 @@
 # .github/workflows/mutlu_tv_lig_veri_cekici.yml
-name: Mutlu TV Lig Veri Çekici - SADECE GERÇEK VERİ
+name: Mutlu TV Lig Veri Çekici - GERÇEK VERİ
 
 on:
   schedule:
-    - cron: '0 */4 * * *'  # Her 4 saatte bir
+    - cron: '0 */4 * * *'
   workflow_dispatch:
   push:
     branches: [ main ]
@@ -32,20 +32,19 @@ jobs:
         pip install --upgrade pip
         pip install requests beautifulsoup4 lxml html5lib
 
-    - name: Veri Çek (GERÇEK VERİ)
+    - name: Veri Çek
       id: veri_cek
       run: |
         python mutlu_tv_lig_veri_cekici.py 2>&1 | tee output.log
       env:
-        USER_AGENT: "MutluTVLigBot/4.0 (+https://mutlutvlig.com)"
+        USER_AGENT: "MutluTVLigBot/5.0 (+https://mutlutvlig.com)"
         PYTHONUNBUFFERED: "1"
 
     - name: JSON Kontrol
       id: check_json
       run: |
-        if [ -f "mutlu_tv_lig.json" ]; then
+        if [ -f "mutlu_tv_lig_verisi.json" ]; then
           echo "✅ JSON dosyası bulundu."
-          # JSON içeriğini doğrula
           python -c "import json; d=json.load(open('mutlu_tv_lig_verisi.json')); assert len(d.get('puan_durumu', [])) >= 18, 'Eksik takım'"
           echo "::set-output name=success::true"
         else
@@ -59,7 +58,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action [Bot]"
-        git add mutlu_tv_lig.json
+        git add mutlu_tv_lig_verisi.json
         git commit -m "🔄 Gerçek veri güncellendi: $(date +'%Y-%m-%d %H:%M:%S')" || echo "Değişiklik yok"
 
     - name: Push Et
@@ -75,7 +74,6 @@ jobs:
       with:
         name: mutlu-tv-lig-logs
         path: |
-          mutlu_tv_lig.json
+          mutlu_tv_lig_verisi.json
           *.log
-          debug_*.html
         retention-days: 7
