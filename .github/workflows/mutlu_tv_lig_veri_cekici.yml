@@ -43,7 +43,7 @@ jobs:
     - name: JSON Kontrol
       id: check_json
       run: |
-        if [ -f "mutlu_tv_lig_verisi.json" ]; then
+        if [ -f "mutlu_tv_lig.json" ]; then
           echo "✅ JSON dosyası bulundu."
           # JSON içeriğini doğrula
           python -c "import json; d=json.load(open('mutlu_tv_lig_verisi.json')); assert len(d.get('puan_durumu', [])) >= 18, 'Eksik takım'"
@@ -59,7 +59,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action [Bot]"
-        git add mutlu_tv_lig_verisi.json
+        git add mutlu_tv_lig.json
         git commit -m "🔄 Gerçek veri güncellendi: $(date +'%Y-%m-%d %H:%M:%S')" || echo "Değişiklik yok"
 
     - name: Push Et
@@ -75,7 +75,7 @@ jobs:
       with:
         name: mutlu-tv-lig-logs
         path: |
-          mutlu_tv_lig_verisi.json
+          mutlu_tv_lig.json
           *.log
           debug_*.html
         retention-days: 7
