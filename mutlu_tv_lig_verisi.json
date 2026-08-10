@@ -1,0 +1,325 @@
+{
+  "site_adi": "Mutlu TV Lig",
+  "sezon": "2026-2027",
+  "guncelleme_tarihi": "2026-08-10 18:42:29",
+  "puan_durumu": [
+    {
+      "sira": 1,
+      "takim": "Galatasaray",
+      "oynanan": 3,
+      "galibiyet": 0,
+      "beraberlik": 1,
+      "maglubiyet": 2,
+      "atilan_gol": 7,
+      "yenilen_gol": 0,
+      "averaj": -3,
+      "puan": 13,
+      "durum": "Şampiyonlar Ligi"
+    },
+    {
+      "sira": 2,
+      "takim": "Fenerbahçe",
+      "oynanan": 2,
+      "galibiyet": 5,
+      "beraberlik": 2,
+      "maglubiyet": 3,
+      "atilan_gol": 2,
+      "yenilen_gol": 2,
+      "averaj": 1,
+      "puan": 11,
+      "durum": "Küme düşme"
+    },
+    {
+      "sira": 3,
+      "takim": "Beşiktaş",
+      "oynanan": 1,
+      "galibiyet": 2,
+      "beraberlik": 3,
+      "maglubiyet": 1,
+      "atilan_gol": 5,
+      "yenilen_gol": 4,
+      "averaj": 7,
+      "puan": 0,
+      "durum": "Şampiyonlar Ligi"
+    },
+    {
+      "sira": 4,
+      "takim": "Trabzonspor",
+      "oynanan": 1,
+      "galibiyet": 2,
+      "beraberlik": 2,
+      "maglubiyet": 1,
+      "atilan_gol": 3,
+      "yenilen_gol": 5,
+      "averaj": -4,
+      "puan": 0,
+      "durum": "Küme düşme"
+    },
+    {
+      "sira": 5,
+      "takim": "Başakşehir",
+      "oynanan": 4,
+      "galibiyet": 1,
+      "beraberlik": 1,
+      "maglubiyet": 0,
+      "atilan_gol": 9,
+      "yenilen_gol": 8,
+      "averaj": 8,
+      "puan": 10,
+      "durum": "Şampiyonlar Ligi"
+    },
+    {
+      "sira": 6,
+      "takim": "Kasımpaşa",
+      "oynanan": 5,
+      "galibiyet": 2,
+      "beraberlik": 1,
+      "maglubiyet": 2,
+      "atilan_gol": 5,
+      "yenilen_gol": 2,
+      "averaj": 4,
+      "puan": 3,
+      "durum": "Şampiyonlar Ligi"
+    },
+    {
+      "sira": 7,
+      "takim": "Gaziantep FK",
+      "oynanan": 3,
+      "galibiyet": 5,
+      "beraberlik": 2,
+      "maglubiyet": 3,
+      "atilan_gol": 0,
+      "yenilen_gol": 4,
+      "averaj": 5,
+      "puan": 12,
+      "durum": "Avrupa Ligi"
+    },
+    {
+      "sira": 8,
+      "takim": "Alanyaspor",
+      "oynanan": 4,
+      "galibiyet": 3,
+      "beraberlik": 0,
+      "maglubiyet": 2,
+      "atilan_gol": 0,
+      "yenilen_gol": 1,
+      "averaj": 5,
+      "puan": 14,
+      "durum": "Küme düşme"
+    },
+    {
+      "sira": 9,
+      "takim": "Samsunspor",
+      "oynanan": 2,
+      "galibiyet": 4,
+      "beraberlik": 0,
+      "maglubiyet": 3,
+      "atilan_gol": 2,
+      "yenilen_gol": 8,
+      "averaj": 6,
+      "puan": 2,
+      "durum": ""
+    },
+    {
+      "sira": 10,
+      "takim": "Konyaspor",
+      "oynanan": 5,
+      "galibiyet": 4,
+      "beraberlik": 1,
+      "maglubiyet": 2,
+      "atilan_gol": 0,
+      "yenilen_gol": 5,
+      "averaj": -4,
+      "puan": 15,
+      "durum": ""
+    },
+    {
+      "sira": 11,
+      "takim": "Rizespor",
+      "oynanan": 5,
+      "galibiyet": 4,
+      "beraberlik": 0,
+      "maglubiyet": 0,
+      "atilan_gol": 7,
+      "yenilen_gol": 5,
+      "averaj": 7,
+      "puan": 7,
+      "durum": ""
+    },
+    {
+      "sira": 12,
+      "takim": "Eyüpspor",
+      "oynanan": 3,
+      "galibiyet": 2,
+      "beraberlik": 2,
+      "maglubiyet": 1,
+      "atilan_gol": 2,
+      "yenilen_gol": 7,
+      "averaj": -5,
+      "puan": 6,
+      "durum": ""
+    },
+    {
+      "sira": 13,
+      "takim": "Göztepe",
+      "oynanan": 5,
+      "galibiyet": 2,
+      "beraberlik": 2,
+      "maglubiyet": 0,
+      "atilan_gol": 10,
+      "yenilen_gol": 4,
+      "averaj": 1,
+      "puan": 6,
+      "durum": ""
+    },
+    {
+      "sira": 14,
+      "takim": "Gençlerbirliği",
+      "oynanan": 5,
+      "galibiyet": 4,
+      "beraberlik": 2,
+      "maglubiyet": 2,
+      "atilan_gol": 4,
+      "yenilen_gol": 1,
+      "averaj": 6,
+      "puan": 12,
+      "durum": ""
+    },
+    {
+      "sira": 15,
+      "takim": "Kocaelispor",
+      "oynanan": 5,
+      "galibiyet": 5,
+      "beraberlik": 3,
+      "maglubiyet": 0,
+      "atilan_gol": 0,
+      "yenilen_gol": 1,
+      "averaj": 3,
+      "puan": 11,
+      "durum": ""
+    },
+    {
+      "sira": 16,
+      "takim": "Erzurumspor",
+      "oynanan": 1,
+      "galibiyet": 5,
+      "beraberlik": 3,
+      "maglubiyet": 0,
+      "atilan_gol": 4,
+      "yenilen_gol": 0,
+      "averaj": -4,
+      "puan": 12,
+      "durum": ""
+    },
+    {
+      "sira": 17,
+      "takim": "Amed Sportif",
+      "oynanan": 4,
+      "galibiyet": 1,
+      "beraberlik": 2,
+      "maglubiyet": 1,
+      "atilan_gol": 4,
+      "yenilen_gol": 2,
+      "averaj": 0,
+      "puan": 3,
+      "durum": ""
+    },
+    {
+      "sira": 18,
+      "takim": "Arca Çorum FK",
+      "oynanan": 2,
+      "galibiyet": 3,
+      "beraberlik": 1,
+      "maglubiyet": 0,
+      "atilan_gol": 2,
+      "yenilen_gol": 6,
+      "averaj": 7,
+      "puan": 3,
+      "durum": "Avrupa Ligi"
+    }
+  ],
+  "panorama": {
+    "son_maclar": [
+      {
+        "takim": "Galatasaray",
+        "rakip": "Fenerbahçe",
+        "skor": "2-1",
+        "tarih": "2026-08-09"
+      },
+      {
+        "takim": "Beşiktaş",
+        "rakip": "Trabzonspor",
+        "skor": "0-0",
+        "tarih": "2026-08-08"
+      },
+      {
+        "takim": "Başakşehir",
+        "rakip": "Kasımpaşa",
+        "skor": "3-2",
+        "tarih": "2026-08-07"
+      }
+    ],
+    "gelecek_maclar": [
+      {
+        "takim": "Fenerbahçe",
+        "rakip": "Galatasaray",
+        "tarih": "2026-08-16"
+      },
+      {
+        "takim": "Trabzonspor",
+        "rakip": "Beşiktaş",
+        "tarih": "2026-08-15"
+      },
+      {
+        "takim": "Kasımpaşa",
+        "rakip": "Başakşehir",
+        "tarih": "2026-08-14"
+      }
+    ]
+  },
+  "fikstur": {
+    "hafta_1": [
+      {
+        "ev_sahibi": "Galatasaray",
+        "deplasman": "Gaziantep FK",
+        "tarih": "2026-08-01",
+        "skor": "3-0"
+      },
+      {
+        "ev_sahibi": "Fenerbahçe",
+        "deplasman": "Alanyaspor",
+        "tarih": "2026-08-01",
+        "skor": "1-1"
+      },
+      {
+        "ev_sahibi": "Beşiktaş",
+        "deplasman": "Rizespor",
+        "tarih": "2026-08-02",
+        "skor": "2-0"
+      }
+    ],
+    "hafta_2": [
+      {
+        "ev_sahibi": "Beşiktaş",
+        "deplasman": "Galatasaray",
+        "tarih": "2026-08-08",
+        "skor": "2-2"
+      },
+      {
+        "ev_sahibi": "Trabzonspor",
+        "deplasman": "Fenerbahçe",
+        "tarih": "2026-08-09",
+        "skor": "0-2"
+      },
+      {
+        "ev_sahibi": "Gaziantep FK",
+        "deplasman": "Başakşehir",
+        "tarih": "2026-08-09",
+        "skor": "1-0"
+      }
+    ]
+  },
+  "kaynak_url": "https://m.sporx.com/turkiye-super-lig-puan-durumu",
+  "veri_kaynak": "sporx.com",
+  "version": "2.0.0"
+}
