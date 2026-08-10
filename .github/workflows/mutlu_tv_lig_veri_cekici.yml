@@ -1,0 +1,95 @@
+# .github/workflows/mutlu_tv_lig_veri_cekici.yml
+name: Mutlu TV Lig Veri Çekici - Günlük Çalıştır
+
+on:
+  schedule:
+    # Her gün Türkiye saatiyle 03:00'te çalışır (UTC 00:00)
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # Manuel çalıştırma için
+
+jobs:
+  veri_cekimi:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Depoyu Klonla
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+
+    - name: Python 3.11 Kurulumu
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        architecture: 'x64'
+
+    - name: Bağımlılıkları Yükle
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4 lxml html5lib
+        # Gereksinim dosyası varsa:
+        # pip install -r requirements.txt
+
+    - name: Veri Çekme Script'ini Çalıştır
+      run: |
+        python mutlu_tv_lig_veri_cekici.py
+      env:
+        # GitHub Secrets ile hassas bilgileri saklayın
+        SPORX_API_KEY: ${{ secrets.SPORX_API_KEY }}  # Gerekirse
+        USER_AGENT: "MutluTVLigBot/1.0 (+https://mutlutvlig.com)"
+
+    - name: Veri Dosyasını Göster (Debug)
+      run: |
+        ls -la
+        head -n 50 mutlu_tv_lig_verisi.json || echo "Dosya oluşturulamadı"
+
+    - name: JSON Verisini Doğrula
+      id: validate
+      run: |
+        if [ -f "mutlu_tv_lig_verisi.json" ]; then
+          echo "::set-output name=success::true"
+          echo "JSON dosyası başarıyla oluşturuldu."
+          # JSON formatını kontrol et
+          python -c "import json; json.load(open('mutlu_tv_lig_verisi.json'))" && echo "JSON geçerli."
+        else
+          echo "::set-output name=success::false"
+          echo "HATA: JSON dosyası oluşturulamadı!"
+          exit 1
+        fi
+
+    - name: Önceki Veri ile Karşılaştır (Değişiklik Varsa Commit)
+      if: steps.validate.outputs.success == 'true'
+      run: |
+        # Eğer veri dosyası değiştiyse commit et
+        if [ -f "mutlu_tv_lig_verisi.json" ]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add mutlu_tv_lig_verisi.json
+          git commit -m "Günlük veri güncellemesi: $(date +'%Y-%m-%d %H:%M:%S')" || echo "Değişiklik yok, commit atlanıyor."
+        fi
+
+    - name: Değişiklikleri Push Et
+      if: steps.validate.outputs.success == 'true'
+      uses: ad-m/github-push-action@v0.8.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        force: false
+
+    - name: Başarısız Durumda Uyarı (Hata Bildirimi)
+      if: failure()
+      run: |
+        echo "::error::Veri çekme işlemi başarısız oldu! Logları kontrol edin."
+        # Slack veya Discord webhook için örnek:
+        # curl -X POST -H 'Content-type: application/json' --data '{"text":"Mutlu TV Lig veri çekici başarısız!"}' ${{ secrets.WEBHOOK_URL }}
+
+    - name: İşlem Loglarını Kaydet
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mutlu-tv-lig-logs
+        path: |
+          mutlu_tv_lig_verisi.json
+          *.log
+        retention-days: 7
