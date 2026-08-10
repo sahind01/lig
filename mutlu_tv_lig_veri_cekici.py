@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Mutlu TV Lig Veri Çekici - SADECE GERÇEK VERİ
+Mutlu TV Lig Veri Çekici - GERÇEK VERİ (FİNAL)
+Sporx.com'dan gerçek puan durumu ve fikstür verilerini çeker.
 Demo veya örnek veri KESİNLİKLE kullanılmaz.
-Veri çekilemezse işlem HATA ile sonlanır.
 """
 
 import requests
@@ -37,7 +37,7 @@ class MutluTvLigVeriCekici:
         self.sezon = "2026-2027"
         self.puan_durumu_url = "https://m.sporx.com/turkiye-super-lig-puan-durumu"
         self.fikstur_url = "https://m.sporx.com/turkiye-super-lig-fikstur"
-        self.user_agent = os.environ.get("USER_AGENT", "MutluTVLigBot/3.0 (+https://mutlutvlig.com)")
+        self.user_agent = os.environ.get("USER_AGENT", "MutluTVLigBot/4.0 (+https://mutlutvlig.com)")
         self.timeout = 30
         self.veri = {}
         self.session = requests.Session()
@@ -60,10 +60,6 @@ class MutluTvLigVeriCekici:
             response.raise_for_status()
             response.encoding = 'utf-8'
             
-            # HTML'i debug için kaydet
-            with open(f"debug_{url.split('/')[-1]}.html", "w", encoding="utf-8") as f:
-                f.write(response.text)
-            
             soup = BeautifulSoup(response.text, 'html.parser')
             logger.info(f"Sayfa başarıyla çekildi: {url}")
             return soup
@@ -80,177 +76,104 @@ class MutluTvLigVeriCekici:
         """
         puan_durumu = []
         
-        # Tabloyu bul
-        tablo = self._tablo_bul(soup)
-        if not tablo:
-            logger.error("❌ PUAN DURUMU TABLOSU BULUNAMADI!")
-            return []
-
-        # Tablo satırlarını al
-        satirlar = tablo.find_all('tr')
-        logger.info(f"Puan durumu: {len(satirlar)} satır bulundu.")
-
-        # Başlık satırını bul
-        baslik_satiri = None
-        for satir in satirlar:
-            hucreler = satir.find_all(['td', 'th'])
-            metinler = [h.get_text(strip=True).lower() for h in hucreler]
-            if any(k in ' '.join(metinler) for k in ['sıra', 'takım', 'puan', 'o']):
-                baslik_satiri = satir
-                break
-
-        if not baslik_satiri:
-            logger.error("❌ BAŞLIK SATIRI BULUNAMADI!")
-            return []
-
-        # Sütun indekslerini belirle
-        sutun_map = self._sutun_indeksleri_bul(baslik_satiri)
-        
-        # Geçerli sütunlar var mı kontrol et
-        if sutun_map['takim'] == -1 or sutun_map['puan'] == -1:
-            logger.error("❌ GEREKLİ SÜTUNLAR BULUNAMADI!")
-            logger.error(f"Sütun haritası: {sutun_map}")
-            return []
-
-        # Veri satırlarını işle
-        for satir in satirlar:
-            if satir == baslik_satiri:
-                continue
-                
-            hucreler = satir.find_all(['td', 'th'])
-            if len(hucreler) < 5:
-                continue
-
-            takim_verisi = self._satir_isle(hucreler, sutun_map)
-            if takim_verisi and takim_verisi.get('takim'):
-                puan_durumu.append(takim_verisi)
-
-        # Benzersiz takım listesi oluştur
-        benzersiz_takimlar = {}
-        for takim in puan_durumu:
-            takim_adi = takim['takim']
-            if takim_adi not in benzersiz_takimlar:
-                benzersiz_takimlar[takim_adi] = takim
-            else:
-                # Daha dolu olanı koru
-                mevcut = benzersiz_takimlar[takim_adi]
-                if takim['puan'] > mevcut['puan'] or takim['oynanan'] > mevcut['oynanan']:
-                    benzersiz_takimlar[takim_adi] = takim
-
-        puan_durumu = list(benzersiz_takimlar.values())
-        
-        # En az 18 takım olmalı
-        if len(puan_durumu) < 18:
-            logger.error(f"❌ BEKLENEN 18 TAKIM, BULUNAN: {len(puan_durumu)}")
-            # Yine de devam et, ama uyarı ver
+        try:
+            # Tabloyu bul - premium-standings içindeki tablo
+            standings_div = soup.find('div', class_='premium-standings')
+            if not standings_div:
+                logger.error("❌ Puan durumu div'i bulunamadı!")
+                return []
             
-        logger.info(f"{len(puan_durumu)} takım bulundu.")
+            tablo = standings_div.find('table', class_='premium-table')
+            if not tablo:
+                logger.error("❌ Puan durumu tablosu bulunamadı!")
+                return []
+            
+            # Tablo gövdelerini bul - genel sıralama
+            tbody = tablo.find('tbody', id='genel')
+            if not tbody:
+                logger.error("❌ Genel sıralama tablosu bulunamadı!")
+                return []
+            
+            satirlar = tbody.find_all('tr')
+            logger.info(f"Puan durumu: {len(satirlar)} satır bulundu.")
+            
+            for satir in satirlar:
+                try:
+                    # Sıra
+                    sira_td = satir.find('td', class_='td-order')
+                    if not sira_td:
+                        continue
+                    
+                    sira_span = sira_td.find('span', class_='position-number')
+                    sira = int(sira_span.get_text(strip=True)) if sira_span else 0
+                    
+                    # Logo
+                    logo_td = satir.find('td', class_='td-logo')
+                    logo_img = logo_td.find('img') if logo_td else None
+                    logo_url = logo_img.get('src', '') if logo_img else ''
+                    
+                    # Takım adı
+                    takim_td = satir.find('td', class_='td-team')
+                    takim_link = takim_td.find('a') if takim_td else None
+                    takim_adi = takim_link.get_text(strip=True) if takim_link else ''
+                    
+                    # İstatistikler
+                    hucreler = satir.find_all('td')
+                    if len(hucreler) < 13:
+                        continue
+                    
+                    # O, G, B, M, A, Y, Av, P
+                    oynanan = self._safe_int(hucreler[4].get_text(strip=True)) if len(hucreler) > 4 else 0
+                    galibiyet = self._safe_int(hucreler[5].get_text(strip=True)) if len(hucreler) > 5 else 0
+                    beraberlik = self._safe_int(hucreler[6].get_text(strip=True)) if len(hucreler) > 6 else 0
+                    maglubiyet = self._safe_int(hucreler[7].get_text(strip=True)) if len(hucreler) > 7 else 0
+                    atilan_gol = self._safe_int(hucreler[8].get_text(strip=True)) if len(hucreler) > 8 else 0
+                    yenilen_gol = self._safe_int(hucreler[9].get_text(strip=True)) if len(hucreler) > 9 else 0
+                    averaj = self._safe_int(hucreler[10].get_text(strip=True)) if len(hucreler) > 10 else 0
+                    puan = self._safe_int(hucreler[11].get_text(strip=True)) if len(hucreler) > 11 else 0
+                    
+                    # Durum
+                    durum_td = satir.find('td', class_='td-desc')
+                    durum_span = durum_td.find('span', class_='position-badge') if durum_td else None
+                    durum = durum_span.get_text(strip=True) if durum_span else ''
+                    
+                    if takim_adi:
+                        puan_durumu.append({
+                            "sira": sira,
+                            "takim": takim_adi,
+                            "logo": logo_url,
+                            "oynanan": oynanan,
+                            "galibiyet": galibiyet,
+                            "beraberlik": beraberlik,
+                            "maglubiyet": maglubiyet,
+                            "atilan_gol": atilan_gol,
+                            "yenilen_gol": yenilen_gol,
+                            "averaj": averaj,
+                            "puan": puan,
+                            "durum": durum
+                        })
+                        logger.debug(f"{sira}. {takim_adi}: {puan} puan")
+                        
+                except Exception as e:
+                    logger.warning(f"Satır işlenirken hata: {str(e)}")
+                    continue
+            
+            logger.info(f"{len(puan_durumu)} takım başarıyla eklendi.")
+            
+        except Exception as e:
+            logger.error(f"Puan durumu çekilirken hata: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+        
         return puan_durumu
 
-    def _tablo_bul(self, soup: BeautifulSoup) -> Optional[BeautifulSoup]:
-        """
-        Sayfadaki tabloyu bulur.
-        """
-        # Strateji 1: İlk tablo
-        tablo = soup.find('table')
-        if tablo and tablo.find('tr'):
-            return tablo
-
-        # Strateji 2: Sınıf ile ara
-        for sinif in ['table', 'standings-table', 'puan-durumu', 'lig-tablosu']:
-            tablo = soup.find('table', class_=re.compile(sinif, re.I))
-            if tablo:
-                return tablo
-
-        # Strateji 3: Div içinde ara
-        for div in soup.find_all('div', class_=re.compile(r'table|standing|puan', re.I)):
-            tablo = div.find('table')
-            if tablo:
-                return tablo
-
-        return None
-
-    def _sutun_indeksleri_bul(self, baslik_satiri: BeautifulSoup) -> Dict[str, int]:
-        """
-        Başlık satırından sütun indekslerini belirler.
-        """
-        hucreler = baslik_satiri.find_all(['td', 'th'])
-        sutun_map = {
-            'sira': -1, 'takim': -1, 'oynanan': -1, 'galibiyet': -1,
-            'beraberlik': -1, 'maglubiyet': -1, 'atilan_gol': -1,
-            'yenilen_gol': -1, 'averaj': -1, 'puan': -1, 'durum': -1
-        }
-        
-        for i, hucre in enumerate(hucreler):
-            metin = hucre.get_text(strip=True).lower()
-            if any(k in metin for k in ['sıra', 'no', '#']):
-                sutun_map['sira'] = i
-            elif any(k in metin for k in ['takım', 'kulüp', 'team']):
-                sutun_map['takim'] = i
-            elif any(k in metin for k in ['o', 'maç', 'match']):
-                sutun_map['oynanan'] = i
-            elif metin == 'g' or metin == 'galibiyet':
-                sutun_map['galibiyet'] = i
-            elif metin == 'b' or metin == 'beraberlik':
-                sutun_map['beraberlik'] = i
-            elif metin == 'm' or metin == 'mağlubiyet':
-                sutun_map['maglubiyet'] = i
-            elif metin == 'a' or metin == 'atılan':
-                sutun_map['atilan_gol'] = i
-            elif metin == 'y' or metin == 'yenilen':
-                sutun_map['yenilen_gol'] = i
-            elif any(k in metin for k in ['av', 'averaj']):
-                sutun_map['averaj'] = i
-            elif any(k in metin for k in ['p', 'puan']):
-                sutun_map['puan'] = i
-            elif any(k in metin for k in ['durum', 'status']):
-                sutun_map['durum'] = i
-
-        return sutun_map
-
-    def _satir_isle(self, hucreler: List, sutun_map: Dict[str, int]) -> Optional[Dict[str, Any]]:
-        """
-        Tek bir satırdan takım verisini çıkarır.
-        """
+    def _safe_int(self, value: str) -> int:
+        """Güvenli integer dönüşümü."""
         try:
-            def safe_text(index):
-                if 0 <= index < len(hucreler):
-                    return hucreler[index].get_text(strip=True)
-                return ""
-
-            def safe_int(index):
-                try:
-                    if 0 <= index < len(hucreler):
-                        text = hucreler[index].get_text(strip=True)
-                        cleaned = re.sub(r'[^\d-]', '', text)
-                        return int(cleaned) if cleaned else 0
-                except:
-                    pass
-                return 0
-
-            takim_adi = safe_text(sutun_map['takim'])
-            if not takim_adi:
-                return None
-
-            # Takım adını temizle
-            takim_adi = re.sub(r'^\d+\s*', '', takim_adi).strip()
-            
-            return {
-                "sira": safe_int(sutun_map['sira']) or 0,
-                "takim": takim_adi,
-                "oynanan": safe_int(sutun_map['oynanan']),
-                "galibiyet": safe_int(sutun_map['galibiyet']),
-                "beraberlik": safe_int(sutun_map['beraberlik']),
-                "maglubiyet": safe_int(sutun_map['maglubiyet']),
-                "atilan_gol": safe_int(sutun_map['atilan_gol']),
-                "yenilen_gol": safe_int(sutun_map['yenilen_gol']),
-                "averaj": safe_int(sutun_map['averaj']),
-                "puan": safe_int(sutun_map['puan']),
-                "durum": safe_text(sutun_map['durum'])
-            }
-        except Exception as e:
-            logger.debug(f"Satır işlenirken hata: {str(e)}")
-            return None
+            cleaned = re.sub(r'[^\d-]', '', str(value).strip())
+            return int(cleaned) if cleaned else 0
+        except:
+            return 0
 
     def fikstur_cek(self, soup: BeautifulSoup) -> Dict[str, List[Dict[str, str]]]:
         """
@@ -258,70 +181,125 @@ class MutluTvLigVeriCekici:
         """
         fikstur = {}
         
-        # Hafta başlıklarını bul
-        hafta_basliklari = soup.find_all(['h2', 'h3', 'strong'], string=re.compile(r'hafta|week', re.I))
-        if not hafta_basliklari:
-            hafta_basliklari = soup.find_all('div', class_=re.compile(r'hafta|week', re.I))
-            hafta_basliklari = [h for h in hafta_basliklari if h.find('h2') or h.find('h3')]
-
-        if not hafta_basliklari:
-            logger.error("❌ FİKSTÜR HAFTA BAŞLIKLARI BULUNAMADI!")
-            return {}
-
-        # Maçları bul
-        mac_elemanlari = soup.find_all('div', class_=re.compile(r'match|mac|game', re.I))
-        if not mac_elemanlari:
-            tablo = soup.find('table')
-            if tablo:
-                mac_elemanlari = tablo.find_all('tr')
-
-        if not mac_elemanlari:
-            logger.error("❌ FİKSTÜR MAÇLARI BULUNAMADI!")
-            return {}
-
-        # Haftaları doldur
-        for i, baslik in enumerate(hafta_basliklari[:5], 1):
-            hafta_adi = f"hafta_{i}"
+        try:
+            # Fikstür tablosunu bul
+            fixture_div = soup.find('div', class_='box-fixture')
+            if not fixture_div:
+                logger.error("❌ Fikstür div'i bulunamadı!")
+                return {}
+            
+            tablo = fixture_div.find('table', class_='table-fixture')
+            if not tablo:
+                logger.error("❌ Fikstür tablosu bulunamadı!")
+                return {}
+            
+            tbody = tablo.find('tbody', id='fixtureTbody')
+            if not tbody:
+                logger.error("❌ Fikstür tbody bulunamadı!")
+                return {}
+            
+            # Hafta bilgisi - aktif haftayı bul
+            hafta_elemani = fixture_div.find('a', class_='week-item active')
+            aktif_hafta = hafta_elemani.get_text(strip=True) if hafta_elemani else "1. Hafta"
+            hafta_adi = f"hafta_{aktif_hafta.split('.')[0]}"
+            
             fikstur[hafta_adi] = []
             
-            # Bu haftaya ait maçları bul
-            maclar = []
-            for mac in mac_elemanlari:
-                mac_bilgisi = self._mac_bilgisi_cek(mac)
-                if mac_bilgisi:
-                    maclar.append(mac_bilgisi)
+            # Maçları parse et
+            satirlar = tbody.find_all('tr')
+            mevcut_tarih = ""
             
-            fikstur[hafta_adi] = maclar[:6]
-
-        # Hiç maç yoksa hata ver
-        toplam_mac = sum(len(m) for m in fikstur.values())
-        if toplam_mac == 0:
-            logger.error("❌ HİÇ MAÇ BULUNAMADI!")
-            return {}
-
-        logger.info(f"{len(fikstur)} hafta, {toplam_mac} maç bulundu.")
+            for satir in satirlar:
+                # Tarih satırı
+                if 'fixture-date-row' in satir.get('class', []):
+                    tarih_td = satir.find('td')
+                    if tarih_td:
+                        mevcut_tarih = tarih_td.get_text(strip=True)
+                    continue
+                
+                # Maç satırı
+                if 'fixture-row' in satir.get('class', []):
+                    mac = self._mac_bilgisi_cek(satir, mevcut_tarih)
+                    if mac:
+                        fikstur[hafta_adi].append(mac)
+            
+            logger.info(f"Fikstür: {len(fikstur[hafta_adi])} maç bulundu.")
+            
+        except Exception as e:
+            logger.error(f"Fikstür çekilirken hata: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+        
         return fikstur
 
-    def _mac_bilgisi_cek(self, eleman: BeautifulSoup) -> Optional[Dict[str, str]]:
+    def _mac_bilgisi_cek(self, satir: BeautifulSoup, tarih: str) -> Optional[Dict[str, str]]:
         """
-        Tek bir maç elemanından bilgileri çıkarır.
+        Maç satırından bilgileri çıkarır.
         """
         try:
-            ev_sahibi = eleman.find(class_=re.compile(r'home|ev', re.I))
-            deplasman = eleman.find(class_=re.compile(r'away|deplasman', re.I))
-            skor = eleman.find(class_=re.compile(r'score|skor', re.I))
-            tarih = eleman.find(class_=re.compile(r'date|tarih', re.I))
+            fixture_item = satir.find('div', class_='fixture-item')
+            if not fixture_item:
+                return None
             
-            if ev_sahibi and deplasman:
-                return {
-                    "ev_sahibi": ev_sahibi.get_text(strip=True),
-                    "deplasman": deplasman.get_text(strip=True),
-                    "skor": skor.get_text(strip=True) if skor else "-",
-                    "tarih": tarih.get_text(strip=True) if tarih else ""
-                }
-        except:
-            pass
-        return None
+            # Takım bilgileri
+            takim_linkleri = fixture_item.find_all('a', class_='fixture-team-link')
+            if len(takim_linkleri) < 2:
+                return None
+            
+            # Ev sahibi
+            ev_sahibi_link = takim_linkleri[0]
+            ev_sahibi = ev_sahibi_link.find('span', class_='fixture-team-name')
+            ev_sahibi_adi = ev_sahibi.get_text(strip=True) if ev_sahibi else ''
+            
+            # Deplasman
+            deplasman_link = takim_linkleri[1]
+            deplasman = deplasman_link.find('span', class_='fixture-team-name')
+            deplasman_adi = deplasman.get_text(strip=True) if deplasman else ''
+            
+            # Saat / skor
+            sag_taraf = fixture_item.find('a', class_='fixture-side-link')
+            saat_span = sag_taraf.find('span', class_='fixture-match-time') if sag_taraf else None
+            saat = saat_span.get_text(strip=True) if saat_span else ''
+            
+            # Skor kontrolü - eğer saat formatında değilse skordur
+            skor = saat if re.match(r'^\d+-\d+$', saat) else ''
+            saat_bilgisi = saat if not skor else ''
+            
+            return {
+                "ev_sahibi": ev_sahibi_adi,
+                "deplasman": deplasman_adi,
+                "tarih": tarih,
+                "saat": saat_bilgisi,
+                "skor": skor
+            }
+        except Exception as e:
+            logger.debug(f"Maç bilgisi çekilirken hata: {str(e)}")
+            return None
+
+    def panorama_olustur(self, puan_durumu: List, fikstur: Dict) -> Dict:
+        """
+        Panorama verisi oluşturur.
+        """
+        panorama = {
+            "lider": puan_durumu[0]['takim'] if puan_durumu else "",
+            "lider_puan": puan_durumu[0]['puan'] if puan_durumu else 0,
+            "son_sira": puan_durumu[-1]['takim'] if len(puan_durumu) > 1 else "",
+            "toplam_takim": len(puan_durumu),
+            "guncel_hafta": list(fikstur.keys())[0] if fikstur else "",
+            "son_maclar": [],
+            "gelecek_maclar": []
+        }
+        
+        # Fikstürden maçları al
+        if fikstur:
+            for hafta, maclar in fikstur.items():
+                for mac in maclar[:3]:
+                    if mac.get('skor'):
+                        panorama["son_maclar"].append(mac)
+                    else:
+                        panorama["gelecek_maclar"].append(mac)
+        
+        return panorama
 
     def veri_dogrula(self) -> bool:
         """
@@ -336,10 +314,9 @@ class MutluTvLigVeriCekici:
             return False
         
         # Takım adları kontrolü
-        takim_adlari = [t['takim'] for t in puan_durumu]
-        for takim in takim_adlari:
-            if not takim or len(takim) < 2:
-                logger.error(f"❌ GEÇERSİZ TAKIM ADI: {takim}")
+        for takim in puan_durumu:
+            if not takim.get('takim') or len(takim['takim']) < 2:
+                logger.error(f"❌ GEÇERSİZ TAKIM ADI: {takim.get('takim')}")
                 return False
         
         # Fikstür kontrolü
@@ -383,6 +360,9 @@ class MutluTvLigVeriCekici:
             logger.error("❌ FİKSTÜR VERİSİ ÇEKİLEMEDİ!")
             sys.exit(1)
 
+        # Panorama oluştur
+        panorama = self.panorama_olustur(puan_durumu, fikstur)
+
         # Veriyi yapılandır
         self.veri = {
             "site_adi": self.site_adi,
@@ -390,12 +370,13 @@ class MutluTvLigVeriCekici:
             "guncelleme_tarihi": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "puan_durumu": puan_durumu,
             "fikstur": fikstur,
+            "panorama": panorama,
             "kaynaklar": {
                 "puan_durumu": self.puan_durumu_url,
                 "fikstur": self.fikstur_url
             },
             "veri_kaynak": "sporx.com",
-            "version": "4.0.0",
+            "version": "5.0.0",
             "durum": "basarili"
         }
 
@@ -440,6 +421,15 @@ class MutluTvLigVeriCekici:
             durum = takim.get('durum', '')[:12] if takim.get('durum') else ""
             print(f"{takim.get('sira', 0):<4} {takim.get('takim', '')[:25]:<25} {takim.get('oynanan', 0):<3} {takim.get('galibiyet', 0):<3} {takim.get('beraberlik', 0):<3} {takim.get('maglubiyet', 0):<3} {takim.get('atilan_gol', 0):<3} {takim.get('yenilen_gol', 0):<3} {takim.get('averaj', 0):<5} {takim.get('puan', 0):<4} {durum}")
         print("="*100)
+
+        # Panorama özeti
+        panorama = self.veri.get("panorama", {})
+        if panorama:
+            print(f"\n📊 PANORAMA:")
+            print(f"  • Lider: {panorama.get('lider', '-')} ({panorama.get('lider_puan', 0)} puan)")
+            print(f"  • Son sırada: {panorama.get('son_sira', '-')}")
+            print(f"  • Toplam takım: {panorama.get('toplam_takim', 0)}")
+            print(f"  • Güncel hafta: {panorama.get('guncel_hafta', '-')}")
 
 
 def main():
