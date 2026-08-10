@@ -1,15 +1,19 @@
 # .github/workflows/mutlu_tv_lig_veri_cekici.yml
-name: Mutlu TV Lig Veri Çekici - Günlük Çalıştır
+name: Mutlu TV Lig Veri Çekici - GELİŞMİŞ
 
 on:
   schedule:
-    # Her gün Türkiye saatiyle 03:00'te çalışır (UTC 00:00)
-    - cron: '0 0 * * *'
-  workflow_dispatch:  # Manuel çalıştırma için
+    - cron: '0 */6 * * *'  # Her 6 saatte bir
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'mutlu_tv_lig_veri_cekici.py'
 
 jobs:
   veri_cekimi:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     steps:
     - name: Depoyu Klonla
@@ -28,63 +32,77 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install requests beautifulsoup4 lxml html5lib
-        # Gereksinim dosyası varsa:
-        # pip install -r requirements.txt
+        pip install --upgrade requests beautifulsoup4
+
+    - name: Çalışma Dizini Kontrolü
+      run: |
+        echo "📁 Çalışma dizini: $(pwd)"
+        echo "📄 Dosyalar:"
+        ls -la
 
     - name: Veri Çekme Script'ini Çalıştır
+      id: veri_cek
+      continue-on-error: true
       run: |
-        python mutlu_tv_lig_veri_cekici.py
+        python mutlu_tv_lig_veri_cekici.py 2>&1 | tee output.log
       env:
-        # GitHub Secrets ile hassas bilgileri saklayın
-        SPORX_API_KEY: ${{ secrets.SPORX_API_KEY }}  # Gerekirse
-        USER_AGENT: "MutluTVLigBot/1.0 (+https://mutlutvlig.com)"
+        USER_AGENT: "MutluTVLigBot/2.0 (+https://mutlutvlig.com)"
+        PYTHONUNBUFFERED: "1"
 
-    - name: Veri Dosyasını Göster (Debug)
+    - name: Log Dosyasını Kontrol Et
       run: |
-        ls -la
-        head -n 50 mutlu_tv_lig_verisi.json || echo "Dosya oluşturulamadı"
+        if [ -f "mutlu_tv_lig.log" ]; then
+          echo "📋 Log dosyası içeriği:"
+          cat mutlu_tv_lig.log
+        fi
+        if [ -f "output.log" ]; then
+          echo "📋 Çıktı logu:"
+          tail -n 20 output.log
+        fi
 
-    - name: JSON Verisini Doğrula
-      id: validate
+    - name: JSON Verisini Kontrol Et
+      id: check_json
       run: |
         if [ -f "mutlu_tv_lig_verisi.json" ]; then
+          echo "✅ JSON dosyası bulundu."
+          echo "📊 Dosya boyutu: $(du -h mutlu_tv_lig_verisi.json | cut -f1)"
+          echo "📈 JSON içeriği özeti:"
+          python -c "import json; d=json.load(open('mutlu_tv_lig_verisi.json')); print(f'Toplam takım: {len(d.get(\"puan_durumu\", []))}'); print(f'Güncelleme: {d.get(\"guncelleme_tarihi\", \"-\")}')"
           echo "::set-output name=success::true"
-          echo "JSON dosyası başarıyla oluşturuldu."
-          # JSON formatını kontrol et
-          python -c "import json; json.load(open('mutlu_tv_lig_verisi.json'))" && echo "JSON geçerli."
         else
+          echo "❌ JSON dosyası bulunamadı!"
           echo "::set-output name=success::false"
-          echo "HATA: JSON dosyası oluşturulamadı!"
           exit 1
         fi
 
-    - name: Önceki Veri ile Karşılaştır (Değişiklik Varsa Commit)
-      if: steps.validate.outputs.success == 'true'
+    - name: Veriyi Commit Et (Değişiklik Varsa)
+      if: steps.check_json.outputs.success == 'true'
       run: |
-        # Eğer veri dosyası değiştiyse commit et
-        if [ -f "mutlu_tv_lig_verisi.json" ]; then
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add mutlu_tv_lig_verisi.json
-          git commit -m "Günlük veri güncellemesi: $(date +'%Y-%m-%d %H:%M:%S')" || echo "Değişiklik yok, commit atlanıyor."
-        fi
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action [Bot]"
+        git add mutlu_tv_lig_verisi.json
+        git commit -m "🔄 Veri güncellendi: $(date +'%Y-%m-%d %H:%M:%S')" || echo "✅ Değişiklik yok, commit atlandı."
 
     - name: Değişiklikleri Push Et
-      if: steps.validate.outputs.success == 'true'
+      if: steps.check_json.outputs.success == 'true'
       uses: ad-m/github-push-action@v0.8.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.ref }}
         force: false
 
-    - name: Başarısız Durumda Uyarı (Hata Bildirimi)
-      if: failure()
+    - name: Başarısız Durumda Uyarı
+      if: failure() || steps.veri_cek.outcome == 'failure'
       run: |
-        echo "::error::Veri çekme işlemi başarısız oldu! Logları kontrol edin."
-        # Slack veya Discord webhook için örnek:
-        # curl -X POST -H 'Content-type: application/json' --data '{"text":"Mutlu TV Lig veri çekici başarısız!"}' ${{ secrets.WEBHOOK_URL }}
+        echo "::error::⚠️ Veri çekme işlemi başarısız oldu!"
+        echo "Logları inceleyin:"
+        if [ -f "mutlu_tv_lig.log" ]; then
+          cat mutlu_tv_lig.log
+        fi
+        # Webhook bildirimi (opsiyonel)
+        # curl -X POST -H 'Content-type: application/json' --data '{"text":"⚠️ Mutlu TV Lig veri çekici başarısız!"}' ${{ secrets.WEBHOOK_URL }}
 
-    - name: İşlem Loglarını Kaydet
+    - name: Artifact Olarak Kaydet
       uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -92,4 +110,5 @@ jobs:
         path: |
           mutlu_tv_lig_verisi.json
           *.log
+          output.log
         retention-days: 7
