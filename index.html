@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Mutlu TV - Premium IPTV</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-green: #00ff88;
+            --neon-blue: #00d4ff;
+            --neon-purple: #a855f7;
+            --neon-pink: #ec4899;
+            --neon-yellow: #fbbf24;
+            --dark-bg: #0a0a12;
+            --dark-card: #111122;
+            --dark-card-hover: #1a1a2e;
+            --text-primary: #f0f0ff;
+            --text-secondary: #a0a0b8;
+            --text-muted: #5a5a7a;
+            --border-glow: rgba(0, 255, 136, 0.15);
+            --shadow-neon: 0 0 40px rgba(0, 255, 136, 0.08);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-green);
+            border-radius: 10px;
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        /* ===== NEON GLOW EFFECTS ===== */
+        .glow-text {
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3), 0 0 60px rgba(0, 255, 136, 0.1);
+        }
+
+        .glow-border {
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.05), inset 0 0 30px rgba(0, 255, 136, 0.02);
+        }
+
+        .glow-hover:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.15), inset 0 0 40px rgba(0, 255, 136, 0.05);
+            transform: translateY(-4px);
+        }
+
+        /* ===== BACKGROUND ANIMATION ===== */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(168, 85, 247, 0.02) 0%, transparent 50%);
+        }
+
+        .bg-grid::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .floating-particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float-particle linear infinite;
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        @keyframes float-particle {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) scale(0);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10vh) scale(1);
+            }
+        }
+
+        /* ===== HEADER / NAV ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 18, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.08);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .header-brand .brand-icon {
+            font-size: 28px;
+            animation: pulse-icon 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-icon {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .header-brand .brand-text {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-brand .brand-sub {
+            font-size: 9px;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            -webkit-text-fill-color: var(--text-muted);
+            display: block;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .header-btn:hover {
+            border-color: var(--neon-green);
+            color: var(--text-primary);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+        }
+
+        .header-btn.primary {
+            background: linear-gradient(135deg, var(--neon-green), #00cc77);
+            border: none;
+            color: #0a0a12;
+            font-weight: 600;
+        }
+
+        .header-btn.primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 90px 20px 40px;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            text-align: center;
+            padding: 40px 0 50px;
+        }
+
+        .hero .hero-badge {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 30px;
+            background: rgba(0, 255, 136, 0.08);
+            border: 1px solid rgba(0, 255, 136, 0.15);
+            color: var(--neon-green);
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text-primary) 30%, var(--neon-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .hero-sub {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .hero .hero-features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .hero .hero-features span {
+            padding: 6px 16px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .hero .hero-features span i {
+            color: var(--neon-green);
+            margin-right: 6px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .hero-btn {
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            border: none;
+        }
+
+        .hero-btn.download {
+            background: linear-gradient(135deg, var(--neon-green), #00cc77);
+            color: #0a0a12;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .hero-btn.download:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 60px rgba(0, 255, 136, 0.4);
+        }
+
+        .hero-btn.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .hero-btn.secondary:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .hero-btn .btn-icon {
+            font-size: 20px;
+        }
+
+        /* ===== SECTION TITLES ===== */
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .section-title h2 i {
+            color: var(--neon-green);
+            margin-right: 10px;
+        }
+
+        .section-title p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* ===== FEATURES GRID ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .feature-card {
+            background: var(--dark-card);
+            border-radius: var(--radius-md);
+            padding: 28px 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: var(--transition);
+            cursor: default;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 255, 136, 0.15);
+            box-shadow: 0 8px 40px rgba(0, 255, 136, 0.05);
+        }
+
+        .feature-card .fc-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .feature-card .fc-icon.green {
+            color: var(--neon-green);
+        }
+        .feature-card .fc-icon.blue {
+            color: var(--neon-blue);
+        }
+        .feature-card .fc-icon.purple {
+            color: var(--neon-purple);
+        }
+        .feature-card .fc-icon.pink {
+            color: var(--neon-pink);
+        }
+        .feature-card .fc-icon.yellow {
+            color: var(--neon-yellow);
+        }
+
+        .feature-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== DOWNLOAD SECTION ===== */
+        .download-section {
+            background: var(--dark-card);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            margin-bottom: 50px;
+            border: 1px solid rgba(0, 255, 136, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.03), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-md);
+            padding: 30px 24px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: var(--transition);
+        }
+
+        .download-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 255, 136, 0.15);
+        }
+
+        .download-card .dc-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .download-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .download-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .download-card .dc-size {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .download-card .dc-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 28px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--neon-green), #00cc77);
+            color: #0a0a12;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-card .dc-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .download-card .dc-btn.blue {
+            background: linear-gradient(135deg, var(--neon-blue), #0099ff);
+        }
+
+        .download-card .dc-btn.blue:hover {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        /* ===== TV BOX SUPPORT ===== */
+        .tvbox-section {
+            background: var(--dark-card);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            margin-bottom: 50px;
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            text-align: center;
+        }
+
+        .tvbox-section .tvbox-icon {
+            font-size: 60px;
+            color: var(--neon-blue);
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .tvbox-section h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .tvbox-section p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .tvbox-brands {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .tvbox-brands span {
+            padding: 8px 20px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tvbox-brands span i {
+            color: var(--neon-blue);
+        }
+
+        /* ===== CONTENT CATEGORIES ===== */
+        .content-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 14px;
+            margin-bottom: 50px;
+        }
+
+        .category-item {
+            background: var(--dark-card);
+            border-radius: var(--radius-sm);
+            padding: 20px 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: var(--transition);
+            cursor: default;
+        }
+
+        .category-item:hover {
+            border-color: rgba(0, 255, 136, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .category-item .ci-icon {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .category-item .ci-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .category-item .ci-count {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark-card);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 50px 20px 30px;
+            margin-top: 40px;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .footer-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .footer-col h4 i {
+            color: var(--neon-green);
+            margin-right: 6px;
+        }
+
+        .footer-col p,
+        .footer-col a {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 2;
+            text-decoration: none;
+            display: block;
+            transition: var(--transition);
+        }
+
+        .footer-col a:hover {
+            color: var(--neon-green);
+        }
+
+        .footer-col .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .footer-col .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .footer-col .social-links a:hover {
+            border-color: var(--neon-green);
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+        }
+
+        .footer-col .social-links a.telegram:hover {
+            border-color: #0088cc;
+            box-shadow: 0 0 20px rgba(0, 136, 204, 0.2);
+        }
+
+        .footer-col .social-links a.youtube:hover {
+            border-color: #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .footer-col .social-links a.instagram:hover {
+            border-color: #e4405f;
+            box-shadow: 0 0 20px rgba(228, 64, 95, 0.2);
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 30px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-bottom p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .footer-bottom .footer-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-bottom .footer-links a {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .footer-bottom .footer-links a:hover {
+            color: var(--neon-green);
+        }
+
+        /* ===== PRIVACY POLICY & ABOUT MODALS ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: var(--dark-card);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            border-radius: var(--radius-lg);
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 40px;
+            animation: modalSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalSlide {
+            from {
+                transform: scale(0.95) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-content .modal-header h3 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-content .modal-header h3 i {
+            color: var(--neon-green);
+            margin-right: 10px;
+        }
+
+        .modal-content .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .modal-content .modal-close:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-content .modal-body {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .modal-content .modal-body h4 {
+            color: var(--text-primary);
+            margin: 16px 0 6px;
+            font-size: 16px;
+        }
+
+        .modal-content .modal-body p {
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .modal-content .modal-body ul {
+            padding-left: 24px;
+            margin-bottom: 12px;
+        }
+
+        .modal-content .modal-body ul li {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .modal-content .modal-body .highlight {
+            color: var(--neon-green);
+        }
+
+        .modal-content .modal-body .telegram-channel {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 30px;
+            background: rgba(0, 136, 204, 0.1);
+            border: 1px solid rgba(0, 136, 204, 0.2);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: var(--transition);
+            margin-top: 8px;
+        }
+
+        .modal-content .modal-body .telegram-channel:hover {
+            background: rgba(0, 136, 204, 0.2);
+            border-color: #0088cc;
+            box-shadow: 0 0 30px rgba(0, 136, 204, 0.1);
+        }
+
+        .modal-content .modal-body .telegram-channel i {
+            color: #0088cc;
+            font-size: 22px;
+        }
+
+        /* ===== SCROLL INDICATOR ===== */
+        .scroll-indicator {
+            text-align: center;
+            padding: 10px 0 30px;
+            color: var(--text-muted);
+            font-size: 13px;
+            animation: bounce-down 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce-down {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(8px);
+            }
+        }
+
+        /* ===== TELEGRAM BUTTON ===== */
+        .telegram-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #0088cc, #005f8a);
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .telegram-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(0, 136, 204, 0.4);
+        }
+
+        .telegram-btn i {
+            font-size: 22px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 16px;
+            }
+            .header-brand .brand-sub {
+                display: none;
+            }
+            .header-btn span {
+                display: none;
+            }
+            .header-btn {
+                padding: 8px 12px;
+            }
+            .main-container {
+                padding: 80px 14px 30px;
+            }
+            .hero {
+                padding: 20px 0 30px;
+            }
+            .download-section {
+                padding: 24px 16px;
+            }
+            .tvbox-section {
+                padding: 24px 16px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .hero-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            .content-categories {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .modal-content {
+                padding: 24px;
+                margin: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-categories {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ===== TV BOX REMOTE CONTROL VISUAL ===== */
+        .remote-visual {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .remote-btn {
+            padding: 8px 18px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            font-size: 12px;
+            transition: var(--transition);
+            cursor: default;
+        }
+
+        .remote-btn.active {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.05);
+        }
+
+        .remote-btn i {
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== BACKGROUND ===== -->
+    <div class="bg-grid"></div>
+    <div class="floating-particles" id="particles"></div>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <a href="#" class="header-brand">
+            <span class="brand-icon">📺</span>
+            <div>
+                <span class="brand-text">Mutlu TV</span>
+                <span class="brand-sub">Premium IPTV</span>
+            </div>
+        </a>
+        <div class="header-actions">
+            <a href="#download" class="header-btn primary">
+                <i class="fas fa-download"></i>
+                <span>İndir</span>
+            </a>
+            <a href="javascript:void(0)" onclick="openModal('about')" class="header-btn">
+                <i class="fas fa-info-circle"></i>
+                <span>Hakkında</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ===== MODALS ===== -->
+
+    <!-- HAKKIMIZDA MODAL -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-info-circle"></i> Hakkımızda</h3>
+                <button class="modal-close" onclick="closeModal('about')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>🌟 Mutlu TV Kimdir?</h4>
+                <p>
+                    <strong>Mutlu TV</strong>, 2024 yılında kurulmuş, Türkiye'nin önde gelen IPTV hizmet sağlayıcılarından biridir. 
+                    Amacımız, kullanıcılarımıza en kaliteli, kesintisiz ve geniş içerikli yayın deneyimini sunmaktır.
+                </p>
+                <h4>🎯 Vizyonumuz</h4>
+                <p>
+                    Dijital eğlence dünyasında sınırları aşarak, her cihazda ve her ortamda kullanıcılarımıza 
+                    <span class="highlight">sınırsız eğlence</span> sunmak. Yerel ve uluslararası içerikleri 
+                    tek platformda birleştiriyoruz.
+                </p>
+                <h4>💎 Neden Mutlu TV?</h4>
+                <ul>
+                    <li>✅ <strong>10.000+</strong> canlı TV kanalı</li>
+                    <li>✅ <strong>4K Ultra HD</strong> yayın kalitesi</li>
+                    <li>✅ <strong>%100 TV Box</strong> ve kumanda uyumluluğu</li>
+                    <li>✅ <strong>7/24</strong> canlı müşteri desteği</li>
+                    <li>✅ <strong>Reklamsız</strong> ve kesintisiz izleme keyfi</li>
+                </ul>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
+                    <a href="https://t.me/mutluvisiontv" target="_blank" class="telegram-channel">
+                        <i class="fab fa-telegram-plane"></i>
+                        <span><strong>Telegram Kanalımız</strong><br><span style="font-size:12px;color:var(--text-muted);">@mutluvisiontv</span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GİZLİLİK POLİTİKASI MODAL -->
+    <div class="modal-overlay" id="privacyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-shield-alt"></i> Gizlilik Politikası</h3>
+                <button class="modal-close" onclick="closeModal('privacy')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Son Güncelleme:</strong> 12 Ağustos 2026</p>
+                <p>
+                    Mutlu TV olarak, kullanıcılarımızın gizliliğine büyük önem veriyoruz. 
+                    Bu gizlilik politikası, hizmetlerimizi kullanırken hangi bilgilerin toplandığını, 
+                    nasıl kullanıldığını ve korunduğunu açıklamaktadır.
+                </p>
+
+                <h4>📊 Toplanan Bilgiler</h4>
+                <ul>
+                    <li><strong>Cihaz Bilgileri:</strong> IP adresi, işletim sistemi, cihaz modeli</li>
+                    <li><strong>Kullanım Verileri:</strong> Uygulama kullanım istatistikleri, tercihler</li>
+                    <li><strong>İletişim Bilgileri:</strong> Destek talepleri ve geri bildirimler</li>
+                </ul>
+
+                <h4>🔒 Bilgilerin Kullanımı</h4>
+                <ul>
+                    <li>Hizmetlerimizi geliştirmek ve kişiselleştirmek</li>
+                    <li>Teknik destek sağlamak</li>
+                    <li>Yasal yükümlülükleri yerine getirmek</li>
+                </ul>
+
+                <h4>🍪 Çerez Politikası</h4>
+                <p>
+                    Web sitemiz, deneyiminizi geliştirmek için çerezler kullanmaktadır. 
+                    Çerezleri tarayıcı ayarlarınızdan devre dışı bırakabilirsiniz.
+                </p>
+
+                <h4>📧 Veri Güvenliği</h4>
+                <p>
+                    Verileriniz endüstri standardı şifreleme yöntemleriyle korunmaktadır. 
+                    Kişisel bilgileriniz üçüncü taraflarla paylaşılmaz.
+                </p>
+
+                <h4>📜 Politika Değişiklikleri</h4>
+                <p>
+                    Bu politika zaman zaman güncellenebilir. Değişiklikler bu sayfada yayınlanacaktır.
+                </p>
+
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
+                    <a href="https://t.me/mutluvisiontv" target="_blank" class="telegram-channel">
+                        <i class="fab fa-telegram-plane"></i>
+                        <span><strong>Telegram Kanalımız</strong><br><span style="font-size:12px;color:var(--text-muted);">@mutluvisiontv</span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- İLETİŞİM MODAL -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-phone"></i> İletişim</h3>
+                <button class="modal-close" onclick="closeModal('contact')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>📞 Bize Ulaşın</h4>
+                <p>Mutlu TV olarak her zaman yanınızdayız. Sorularınız, önerileriniz veya teknik destek talepleriniz için bize aşağıdaki kanallardan ulaşabilirsiniz.</p>
+
+                <div style="margin:16px 0;">
+                    <p><i class="fas fa-envelope" style="color:var(--neon-green);width:24px;"></i> <strong>E-posta:</strong> destek@mutlutv.com</p>
+                    <p><i class="fas fa-phone" style="color:var(--neon-green);width:24px;"></i> <strong>Telefon:</strong> +90 555 123 4567</p>
+                    <p><i class="fab fa-telegram" style="color:var(--neon-blue);width:24px;"></i> <strong>Telegram:</strong> @mutluvisiontv</p>
+                    <p><i class="fas fa-clock" style="color:var(--neon-green);width:24px;"></i> <strong>Destek Saatleri:</strong> 7/24 Canlı Destek</p>
+                </div>
+
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
+                    <a href="https://t.me/mutluvisiontv" target="_blank" class="telegram-channel">
+                        <i class="fab fa-telegram-plane"></i>
+                        <span><strong>Telegram Kanalımız</strong><br><span style="font-size:12px;color:var(--text-muted);">@mutluvisiontv</span></span>
+                    </a>
+                </div>
+
+                <div style="margin-top:12px;text-align:center;">
+                    <a href="https://t.me/mutluvisiontv" target="_blank" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#0088cc,#005f8a);color:white;border-radius:50px;text-decoration:none;font-weight:600;transition:var(--transition);">
+                        <i class="fab fa-telegram-plane"></i> Telegram'a Katıl
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN ===== -->
+    <main class="main-container">
+
+        <!-- ===== HERO ===== -->
+        <section class="hero">
+            <div class="hero-badge">
+                <i class="fas fa-star"></i> Premium IPTV Deneyimi
+            </div>
+            <h1>Mutlu TV ile<br><span class="glow-text">Sınırsız Eğlence</span></h1>
+            <p class="hero-sub">
+                Binlerce kanal, film, dizi ve canlı yayın içeriğiyle dolu dolu bir dünya. 
+                TV Box, Android ve tüm cihazlarda kesintisiz izleme keyfi.
+            </p>
+            <div class="hero-features">
+                <span><i class="fas fa-check-circle"></i> 10.000+ Kanal</span>
+                <span><i class="fas fa-check-circle"></i> 4K Ultra HD</span>
+                <span><i class="fas fa-check-circle"></i> %100 TV Box Uyumlu</span>
+                <span><i class="fas fa-check-circle"></i> 7/24 Destek</span>
+            </div>
+            <div class="hero-buttons">
+                <a href="#download" class="hero-btn download">
+                    <i class="fas fa-download btn-icon"></i>
+                    Hemen İndir
+                </a>
+                <a href="#features" class="hero-btn secondary">
+                    <i class="fas fa-play-circle btn-icon"></i>
+                    Özellikleri Keşfet
+                </a>
+            </div>
+        </section>
+
+        <!-- ===== FEATURES ===== -->
+        <section id="features">
+            <div class="section-title">
+                <h2><i class="fas fa-sparkles"></i> Neden Mutlu TV?</h2>
+                <p>En iyi IPTV deneyimi için ihtiyacınız olan her şey</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="fc-icon green"><i class="fas fa-tower-broadcast"></i></span>
+                    <h4>Canlı TV</h4>
+                    <p>Yerel ve uluslararası binlerce canlı TV kanalı</p>
+                </div>
+                <div class="feature-card">
+                    <span class="fc-icon blue"><i class="fas fa-film"></i></span>
+                    <h4>Film & Dizi</h4>
+                    <p>Güncel filmler, popüler diziler ve klasik yapımlar</p>
+                </div>
+                <div class="feature-card">
+                    <span class="fc-icon purple"><i class="fas fa-microchip"></i></span>
+                    <h4>TV Box Destek</h4>
+                    <p>Xiaomi, Firestick, Nvidia Shield ve tüm TV Box'lar</p>
+                </div>
+                <div class="feature-card">
+                    <span class="fc-icon pink"><i class="fas fa-gamepad"></i></span>
+                    <h4>Kumanda Desteği</h4>
+                    <p>%100 kumanda uyumlu, kolay ve hızlı navigasyon</p>
+                </div>
+                <div class="feature-card">
+                    <span class="fc-icon yellow"><i class="fas fa-mobile-screen"></i></span>
+                    <h4>Mobil Dostu</h4>
+                    <p>Telefon, tablet ve tüm mobil cihazlarda optimize</p>
+                </div>
+                <div class="feature-card">
+                    <span class="fc-icon green"><i class="fas fa-cloud"></i></span>
+                    <h4>7/24 Kesintisiz</h4>
+                    <p>Yüksek hızlı sunucularla donma ve takılma yok</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== TV BOX SUPPORT ===== -->
+        <section class="tvbox-section glow-border">
+            <span class="tvbox-icon"><i class="fas fa-tv"></i></span>
+            <h3>📺 TV Box Uyumlu & Kumandalı</h3>
+            <p>
+                Tüm popüler TV Box cihazlarıyla %100 uyumlu. Android TV, Google TV, 
+                Fire TV Stick, Xiaomi TV Box ve daha fazlasında kusursuz çalışır. 
+                Kumandanızla rahatça kontrol edin.
+            </p>
+            <div class="remote-visual">
+                <span class="remote-btn active"><i class="fas fa-arrow-up"></i> Yukarı</span>
+                <span class="remote-btn active"><i class="fas fa-arrow-down"></i> Aşağı</span>
+                <span class="remote-btn active"><i class="fas fa-arrow-left"></i> Sol</span>
+                <span class="remote-btn active"><i class="fas fa-arrow-right"></i> Sağ</span>
+                <span class="remote-btn active"><i class="fas fa-check"></i> Seç</span>
+                <span class="remote-btn"><i class="fas fa-house"></i> Ana Sayfa</span>
+                <span class="remote-btn"><i class="fas fa-arrow-left"></i> Geri</span>
+            </div>
+            <div class="tvbox-brands">
+                <span><i class="fas fa-check-circle"></i> Xiaomi TV Box</span>
+                <span><i class="fas fa-check-circle"></i> Amazon Firestick</span>
+                <span><i class="fas fa-check-circle"></i> Nvidia Shield</span>
+                <span><i class="fas fa-check-circle"></i> Android TV</span>
+                <span><i class="fas fa-check-circle"></i> Google TV</span>
+                <span><i class="fas fa-check-circle"></i> Mi Box</span>
+            </div>
+        </section>
+
+        <!-- ===== CONTENT CATEGORIES ===== -->
+        <div class="section-title">
+            <h2><i class="fas fa-th-list"></i> İçerik Kategorileri</h2>
+            <p>Her zevke uygun binlerce içerik</p>
+        </div>
+        <div class="content-categories">
+            <div class="category-item">
+                <span class="ci-icon">📰</span>
+                <span class="ci-name">Haber</span>
+                <span class="ci-count">200+ kanal</span>
+            </div>
+            <div class="category-item">
+                <span class="ci-icon">⚽</span>
+                <span class="ci-name">Spor</span>
+                <span class="ci-count">150+ kanal</span>
+            </div>
+            <div class="category-item">
+                <span class="ci-icon">🎬</span>
+                <span class="ci-name">Film</span>
+                <span class="ci-count">10.000+ içerik</span>
+            </div>
+            <div class="category-item">
+                <span class="ci-icon">📺</span>
+                <span class="ci-name">Dizi</span>
+                <span class="ci-count">5.000+ içerik</span>
+            </div>
+            <div class="category-item">
+                <span class="ci-icon">🎵</span>
+                <span class="ci-name">Müzik</span>
+                <span class="ci-count">100+ kanal</span>
+            </div>
+            <div class="category-item">
+                <span class="ci-icon">🧒</span>
+                <span class="ci-name">Çocuk</span>
+                <span class="ci-count">80+ kanal</span>
+            </div>
+            <div class="category-item">
+                <span class="ci-icon">🌍</span>
+                <span class="ci-name">Belgesel</span>
+                <span class="ci-count">60+ kanal</span>
+            </div>
+            <div class="category-item">
+                <span class="ci-icon">📡</span>
+                <span class="ci-name">Yabancı</span>
+                <span class="ci-count">300+ kanal</span>
+            </div>
+        </div>
+
+        <!-- ===== DOWNLOAD SECTION ===== -->
+        <section id="download" class="download-section glow-border">
+            <div style="text-align:center;margin-bottom:30px;">
+                <h2 style="font-size:clamp(1.4rem,2.5vw,2rem);"><i class="fas fa-download" style="color:var(--neon-green);"></i> Mutlu TV'yi İndir</h2>
+                <p style="color:var(--text-secondary);">Cihazınıza uygun APK versiyonunu seçin</p>
+            </div>
+            <div class="download-grid">
+                <div class="download-card">
+                    <span class="dc-icon">📱</span>
+                    <h4>Mobil APK</h4>
+                    <p>Telefon ve tabletler için optimize edilmiş</p>
+                    <div class="dc-size">Sürüm: 3.2.0 | 28 MB</div>
+                    <a href="https://www.dropbox.com/scl/fi/m6y2l2wqifqmx9nirr1aj/Mutlu-TV-v1.0.0.apk?rlkey=sontpxzfkle8j1vnn2inqd40z&st=aur0tix2&dl=0" class="dc-btn"><i class="fas fa-download"></i> Mobil APK İndir</a>
+                </div>
+                <div class="download-card">
+                    <span class="dc-icon">📺</span>
+                    <h4>TV Box APK</h4>
+                    <p>Android TV, Firestick, Xiaomi TV Box için</p>
+                    <div class="dc-size">Sürüm: 3.2.0 | 32 MB</div>
+                    <a href="https://www.dropbox.com/scl/fi/m6y2l2wqifqmx9nirr1aj/Mutlu-TV-v1.0.0.apk?rlkey=sontpxzfkle8j1vnn2inqd40z&st=aur0tix2&dl=0" class="dc-btn blue"><i class="fas fa-download"></i> TV Box APK İndir</a>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:20px;">
+                <span style="color:var(--text-muted);font-size:13px;">
+                    <i class="fas fa-shield-alt" style="color:var(--neon-green);"></i> 
+                    %100 Güvenli • Virüs Taraması Geçti
+                </span>
+            </div>
+        </section>
+
+        <!-- ===== SCROLL INDICATOR ===== -->
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+            <div>Aşağı kaydırın</div>
+        </div>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer id="footer" class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4><i class="fas fa-tv"></i> Mutlu TV</h4>
+                <p>Premium IPTV hizmeti ile binlerce kanal, film ve dizi içeriğini tek platformda sunuyoruz. Her cihazda kesintisiz eğlence.</p>
+                <div class="social-links">
+                    <a href="https://t.me/mutluvisiontv" target="_blank" class="telegram" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
+                    <a href="#" class="youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4><i class="fas fa-link"></i> Hızlı Bağlantılar</h4>
+                <a href="#download"><i class="fas fa-download"></i> İndir</a>
+                <a href="#features"><i class="fas fa-sparkles"></i> Özellikler</a>
+                <a href="javascript:void(0)" onclick="openModal('contact')"><i class="fas fa-envelope"></i> İletişim</a>
+                <a href="javascript:void(0)" onclick="openModal('about')"><i class="fas fa-info-circle"></i> Hakkımızda</a>
+            </div>
+            <div class="footer-col">
+                <h4><i class="fas fa-info-circle"></i> Bilgi</h4>
+                <a href="javascript:void(0)" onclick="openModal('about')"><i class="fas fa-building"></i> Hakkımızda</a>
+                <a href="javascript:void(0)" onclick="openModal('privacy')"><i class="fas fa-shield-alt"></i> Gizlilik Politikası</a>
+                <a href="javascript:void(0)" onclick="openModal('contact')"><i class="fas fa-phone"></i> İletişim</a>
+                <a href="https://t.me/mutluvisiontv" target="_blank"><i class="fab fa-telegram"></i> Telegram</a>
+            </div>
+            <div class="footer-col">
+                <h4><i class="fas fa-phone"></i> İletişim</h4>
+                <p><i class="fas fa-envelope"></i> destek@mutlutv.com</p>
+                <p><i class="fas fa-phone"></i> +90 555 123 4567</p>
+                <p><i class="fab fa-telegram"></i> @mutluvisiontv</p>
+                <p><i class="fas fa-clock"></i> 7/24 Canlı Destek</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Mutlu TV. Tüm hakları saklıdır.</p>
+            <div class="footer-links">
+                <a href="javascript:void(0)" onclick="openModal('privacy')">Gizlilik Politikası</a>
+                <a href="javascript:void(0)" onclick="openModal('about')">Hakkımızda</a>
+                <a href="javascript:void(0)" onclick="openModal('contact')">İletişim</a>
+                <a href="https://t.me/mutluvisiontv" target="_blank"><i class="fab fa-telegram"></i> Telegram</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== PARTICLES SCRIPT ===== -->
+    <script>
+        // Floating particles
+        (function createParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['#00ff88', '#00d4ff', '#a855f7', '#ec4899', '#fbbf24'];
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                particle.style.animationDelay = (Math.random() * 20) + 's';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.boxShadow = `0 0 ${size * 2}px ${particle.style.background}`;
+                container.appendChild(particle);
+            }
+        })();
+
+        // Modal Functions
+        function openModal(type) {
+            if (type === 'about') {
+                document.getElementById('aboutModal').classList.add('active');
+            } else if (type === 'privacy') {
+                document.getElementById('privacyModal').classList.add('active');
+            } else if (type === 'contact') {
+                document.getElementById('contactModal').classList.add('active');
+            }
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(type) {
+            if (type === 'about') {
+                document.getElementById('aboutModal').classList.remove('active');
+            } else if (type === 'privacy') {
+                document.getElementById('privacyModal').classList.remove('active');
+            } else if (type === 'contact') {
+                document.getElementById('contactModal').classList.remove('active');
+            }
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on background click
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Header shadow on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.style.borderBottomColor = 'rgba(0,255,136,0.15)';
+                header.style.boxShadow = '0 4px 30px rgba(0,0,0,0.3)';
+            } else {
+                header.style.borderBottomColor = 'rgba(0,255,136,0.08)';
+                header.style.boxShadow = 'none';
+            }
+        });
+
+        // Escape key to close modals
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+
+        console.log('📺 Mutlu TV - Premium IPTV');
+        console.log('🚀 Her cihazda sınırsız eğlence!');
+        console.log('📱 Telegram: @mutluvisiontv');
+    </script>
+
+</body>
+</html>
